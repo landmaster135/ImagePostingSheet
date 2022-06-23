@@ -41,6 +41,24 @@ function getFolderIdObj(){
 }
 
 /**
+ * Gets object that column index and folder name are associated.
+ * @param {Object} folderIdObj
+ * @return {Object}
+ */
+function getFolderNameObj(folderIdObj){
+  let folderId;
+  let folder;
+  let folderNameObj = {};
+  const keys = Object.keys(folderIdObj);
+  for(let i = 0; i < keys.length; i++){
+    folderId = folderIdObj[keys[i]];
+    folder = DriveApp.getFolderById(folderId);
+    folderNameObj[keys[i]] = [folder.getName()];
+  }
+  return folderNameObj;
+}
+
+/**
  * Gets object that column index and file id array are associated.
  * @param {Object} folderIdObj
  * @return {Object}
@@ -54,7 +72,6 @@ function getFileIdsObj(folderIdObj){
   const keys = Object.keys(folderIdObj);
   for(let i = 0; i < keys.length; i++){
     folderId = folderIdObj[keys[i]];
-    console.log(folderId);
     folder = DriveApp.getFolderById(folderId);
     fileIds = [];
     files = folder.getFiles();
@@ -68,12 +85,12 @@ function getFileIdsObj(folderIdObj){
 }
 
 /**
- * Gets object that column index and suffix are associated.
+ * Gets object that column index and prefix are associated.
  * @return {Object}
  */
-function getSuffixObj(){
-  const suffixObj = getInfoObj(SHEET_NAME_MAIN, ROW_INDEX_OF_FILE_NAME_SUFFIX);
-  return suffixObj;
+function getPreffixObj(){
+  const prefixObj = getInfoObj(SHEET_NAME_MAIN, ROW_INDEX_OF_FILE_NAME_PREFFIX);
+  return prefixObj;
 }
 
 /**
@@ -90,32 +107,24 @@ function getFileNamesObj(fileIdsObj){
   const keys = Object.keys(fileIdsObj);
   for(let i = 0; i < keys.length; i++){
     fileIds = fileIdsObj[keys[i]];
-    console.log(fileIds);
     fileNames = [];
     for(let j = 0; j < fileIds.length; j++){
       fileId = fileIds[j];
       file = DriveApp.getFileById(fileId);
       fileNames.push(file.getName());
     }
-    
-    
-    // files = file.getFiles();
-    // while (files.hasNext()) {
-    //   file = files.next()
-    //   fileNames.push(file.getId());
-    // }
     fileNamesObj[keys[i]] = fileNames;
   }
   return fileNamesObj;
 }
 
 /**
- * Gets object deduplicated by number of letters of suffix.
+ * Gets object deduplicated by number of letters of prefix.
  * @param {Object} fileNamesObj
- * @param {Object} suffixObj
+ * @param {Object} preffixObj
  * @return {Object}
  */
-function deduplicateArrayBySuffix(fileNamesObj, suffixObj){
+function deduplicateArrayByPreffix(fileNamesObj, preffixObj){
   let deduplicatedArray = [];
   let deduplicatedObj = {};
   let numberOfTargetLetters = 0;
@@ -125,7 +134,7 @@ function deduplicateArrayBySuffix(fileNamesObj, suffixObj){
     deduplicatedArray = [];
     fileNames = fileNamesObj[keys[i]];
     for(let j = 0; j < fileNames.length; j++){
-      numberOfTargetLetters = suffixObj[keys[i]].length;
+      numberOfTargetLetters = preffixObj[keys[i]].length;
       targetLetters = fileNames[j].substring(0, numberOfTargetLetters);
       // console.log(targetLetters);
       if(!(deduplicatedArray.includes(targetLetters))){
@@ -166,13 +175,12 @@ function setValuesObjOrientingColumn(srcObj){
 }
 /**
  * Writes values from 1 direction array to spreadsheet orienting column.
- * @param {string} fileNasheetNamemesObj
+ * @param {string} sheetName
+ * @param {number} startRowIndex
  * @param {Object} obj
  * @return {bool}
  */
-function writeObjByKey(sheetName, obj){
-  // const arrayToWrite = setValuesOrientingColumn(array);
-  // const flag = writeValuesToSheet(arrayToWrite);
+function writeObjByKey(sheetName, startRowIndex, obj){
   let arrayToWrite = [];
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(sheetName);
@@ -180,7 +188,7 @@ function writeObjByKey(sheetName, obj){
   const keys = Object.keys(obj);
   for(let i = 0; i < keys.length; i++){
     arrayToWrite = obj[keys[i]];
-    range = sheet.getRange(START_ROW_INDEX, keys[i], arrayToWrite.length - 1, 1);
+    range = sheet.getRange(startRowIndex, keys[i], arrayToWrite.length, arrayToWrite[0].length);
     range.setValues(arrayToWrite);
   }
   return true;
@@ -188,15 +196,19 @@ function writeObjByKey(sheetName, obj){
 
 function main() {
   const folderIdObj = getFolderIdObj();
+  const folderNameObj = getFolderNameObj(folderIdObj);
+  const objToWrite1 = setValuesObjOrientingColumn(folderNameObj);
+  console.log("objToWrite1");
+  console.log(objToWrite1)
+  const writtenFlag1 = writeObjByKey(SHEET_NAME_MAIN, ROW_INDEX_OF_FOLDER_NAME, objToWrite1);
   const fileIdsObj = getFileIdsObj(folderIdObj);
-  const suffixObj = getSuffixObj();
+  const preffixObj = getPreffixObj();
   const fileNamesObj = getFileNamesObj(fileIdsObj);
-  const fileNamesObjDeduplicated = deduplicateArrayBySuffix(fileNamesObj, suffixObj);
-  console.log(fileNamesObjDeduplicated)
-  const objToWrite = setValuesObjOrientingColumn(fileNamesObjDeduplicated);
-  const writtenFlag = writeObjByKey(SHEET_NAME_MAIN, objToWrite);
-
-  // const a = "20220623_satisfactory_01"
-  // const b = ["20220623_satisfactory_01"]
-  // console.log(a in b)
+  const fileNamesObjDeduplicated = deduplicateArrayByPreffix(fileNamesObj, preffixObj);
+  // console.log("fileNamesObjDeduplicated");
+  // console.log(fileNamesObjDeduplicated);
+  const objToWrite2 = setValuesObjOrientingColumn(fileNamesObjDeduplicated);
+  console.log("objToWrite2");
+  console.log(objToWrite2);
+  const writtenFlag2 = writeObjByKey(SHEET_NAME_MAIN, ROW_INDEX_OF_START_OF_PREFIXES, objToWrite2);
 }
