@@ -1,6 +1,8 @@
 // const FOLDER_ID_OF_PICTURE_TO_POST = LandGasterId.IPS_FOLDER_ID_OF_PICTURE_TO_POST();
 
-const rowIndexOfFolderId = 1;
-const rowIndexOfFolderName = 2;
-const rowIndexOfFileNameSuffix = 4;
-const startRowIndex = 6;
+const SHEET_NAME_MAIN = "main";
+
+const ROW_INDEX_OF_FOLDER_ID = 1;
+const ROW_INDEX_OF_FOLDER_NAME = 2;
+const ROW_INDEX_OF_FILE_NAME_SUFFIX = 4;
+const START_ROW_INDEX = 6;
