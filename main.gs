@@ -132,9 +132,58 @@ function deduplicateArrayBySuffix(fileNamesObj, suffixObj){
         deduplicatedArray.push(targetLetters);
       }
     }
+    deduplicatedArray = LandmasterLibraryGas.sortArrayAscend(deduplicatedArray);
     deduplicatedObj[keys[i]] = deduplicatedArray;
   }
   return deduplicatedObj;
+}
+
+/**
+ * Sets values from 1 direction array to spreadsheet oriented column.
+ * @param {string[]} array
+ * @return {bool}
+ */
+function setValuesOrientingColumn(array){
+  let values = [];
+  for(let i = 0; i < array.length; i++){
+    values.push([array[i]]);
+  }
+  return values;
+}
+
+/**
+ * Sets object that values orient a column.
+ * @param {Object} srcObj
+ * @return {Object}
+ */
+function setValuesObjOrientingColumn(srcObj){
+  let obj = {};
+  const keys = Object.keys(srcObj);
+  for(let i = 0; i < keys.length; i++){
+    obj[keys[i]] = setValuesOrientingColumn(srcObj[keys[i]]);
+  }
+  return obj;
+}
+/**
+ * Writes values from 1 direction array to spreadsheet orienting column.
+ * @param {string} fileNasheetNamemesObj
+ * @param {Object} obj
+ * @return {bool}
+ */
+function writeObjByKey(sheetName, obj){
+  // const arrayToWrite = setValuesOrientingColumn(array);
+  // const flag = writeValuesToSheet(arrayToWrite);
+  let arrayToWrite = [];
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  let range;
+  const keys = Object.keys(obj);
+  for(let i = 0; i < keys.length; i++){
+    arrayToWrite = obj[keys[i]];
+    range = sheet.getRange(START_ROW_INDEX, keys[i], arrayToWrite.length - 1, 1);
+    range.setValues(arrayToWrite);
+  }
+  return true;
 }
 
 function main() {
@@ -144,6 +193,8 @@ function main() {
   const fileNamesObj = getFileNamesObj(fileIdsObj);
   const fileNamesObjDeduplicated = deduplicateArrayBySuffix(fileNamesObj, suffixObj);
   console.log(fileNamesObjDeduplicated)
+  const objToWrite = setValuesObjOrientingColumn(fileNamesObjDeduplicated);
+  const writtenFlag = writeObjByKey(SHEET_NAME_MAIN, objToWrite);
 
   // const a = "20220623_satisfactory_01"
   // const b = ["20220623_satisfactory_01"]
