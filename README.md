@@ -28,7 +28,7 @@ Sheet after execution.
 2. Click `ListImage by ID row` in the menu.
 3. Operation is running.
 4. When operation finishes, names of image files are listed.
-5. Manage comments to SNS by names of image files.
+5. Manage comments to SNS by names of image files' prefix.
 
 # Dependencies
 
