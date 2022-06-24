@@ -130,11 +130,15 @@ function deduplicateArrayByPreffix(fileNamesObj, preffixObj){
   let numberOfTargetLetters = 0;
   let targetLetters = "";
   const keys = Object.keys(fileNamesObj);
+  if(keys.length !== Object.keys(preffixObj).length){
+    throw new Execption("fileNamesObj and preffixObj are diifferent length.");
+  }
   for(let i = 0; i < keys.length; i++){
     deduplicatedArray = [];
     fileNames = fileNamesObj[keys[i]];
+    numberOfTargetLetters = preffixObj[keys[i]].length;
     for(let j = 0; j < fileNames.length; j++){
-      numberOfTargetLetters = preffixObj[keys[i]].length;
+      console.log(preffixObj[keys[i]])
       targetLetters = fileNames[j].substring(0, numberOfTargetLetters);
       // console.log(targetLetters);
       if(!(deduplicatedArray.includes(targetLetters))){
