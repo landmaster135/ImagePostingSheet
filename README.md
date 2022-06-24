@@ -14,6 +14,14 @@
 
 This function can manage to post image to SNS.
 
+Sheet before execution.
+
+<img width="50%" alt="file names haven't input yet." src="./img/02-01_sheet_before.jpg">
+
+Sheet after execution.
+
+<img width="50%" alt="file names are input." src="./img/02-02_sheet_after.jpg">
+
 # Operation
 
 1. Put image files you wanna post into the folder whose ID are these cells' values.
