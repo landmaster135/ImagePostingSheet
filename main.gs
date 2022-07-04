@@ -131,7 +131,7 @@ function deduplicateArrayByPreffix(fileNamesObj, preffixObj){
   let targetLetters = "";
   const keys = Object.keys(fileNamesObj);
   if(keys.length !== Object.keys(preffixObj).length){
-    throw new Execption("fileNamesObj and preffixObj are diifferent length.");
+    throw new Error("fileNamesObj and preffixObj are diifferent length.");
   }
   for(let i = 0; i < keys.length; i++){
     deduplicatedArray = [];
